@@ -15,13 +15,18 @@ export const GameProvider = ({ children }) => {
 
   const fetchGames = async () => {
     try {
-      const res = await fetch(API_URL);
+      // Fetch from local static JSON instead of API
+      const res = await fetch("/games.json");
       const data = await res.json();
-      // Map MongoDB _id to id for consistency across the frontend
-      const mapped = data.map((g) => ({ ...g, id: g._id }));
+
+      // Add 'id' field if it doesn't exist (using index or title as fallback)
+      const mapped = data.map((g, idx) => ({
+        ...g,
+        id: g._id || g.id || `game-${idx}`
+      }));
       setGames(mapped);
     } catch (err) {
-      console.error("Failed to fetch games:", err);
+      console.error("Failed to fetch games from JSON:", err);
     } finally {
       setLoading(false);
     }
@@ -29,58 +34,26 @@ export const GameProvider = ({ children }) => {
 
   const addGame = async (game) => {
     try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: game.title || "Untitled Game",
-          tagline: game.tagline || "",
-          rating: game.rating || "0",
-          tags: game.tags || [],
-          price: Number(game.price) || 0,
-          image: game.image || "/images/placeholder.jpg",
-          banner: game.banner || "/images/placeholder-banner.jpg",
-          description: game.description || "No description available",
-          developer: game.developer || "Unknown",
-          publisher: game.publisher || "Unknown",
-          release: game.release || "TBA",
-          refund: "Self-Refundable",
-          rewards: "Earn 5% Back",
-          featured: game.featured || false,
-        }),
-      });
-      const saved = await res.json();
-      const newGame = { ...saved, id: saved._id };
+      // In static mode, we just update local state
+      const newGame = {
+        ...game,
+        id: `game-${Date.now()}`,
+        price: Number(game.price) || 0
+      };
       setGames((prev) => [newGame, ...prev]);
     } catch (err) {
-      console.error("Failed to add game:", err);
+      console.error("Failed to add game locally:", err);
     }
   };
 
   const updateGame = async (id, updatedData) => {
-    try {
-      const res = await fetch(`${API_URL}/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedData),
-      });
-      const updated = await res.json();
-      const mappedGame = { ...updated, id: updated._id };
-      setGames((prev) =>
-        prev.map((g) => (g.id === id ? mappedGame : g))
-      );
-    } catch (err) {
-      console.error("Failed to update game:", err);
-    }
+    setGames((prev) =>
+      prev.map((g) => (g.id === id ? { ...g, ...updatedData } : g))
+    );
   };
 
   const deleteGame = async (id) => {
-    try {
-      await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-      setGames((prev) => prev.filter((g) => g.id !== id));
-    } catch (err) {
-      console.error("Failed to delete game:", err);
-    }
+    setGames((prev) => prev.filter((g) => g.id !== id));
   };
 
   // Search helper for Navbar

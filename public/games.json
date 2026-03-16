@@ -1,0 +1,68 @@
+[
+    {
+        "title": "Fortnite",
+        "tagline": "",
+        "rating": "4.0",
+        "tags": [
+            "free-to-play",
+            "battle royale",
+            "third-person shooter"
+        ],
+        "price": 0,
+        "image": "https://static0.polygonimages.com/wordpress/wp-content/uploads/sharedimages/2025/09/fortnite-tag-page-cover-art.jpg",
+        "banner": "https://cdn1.epicgames.com/offer/fn/FNBR_39-00_C7S1_EGS_Launcher_DarkVoyager_FN_Blade_2560x1440_2560x1440-5ec6c25a339c465fa7312d92abfedeb8",
+        "description": "Fortnite is a massively popular, free-to-play, third-person battle royale game developed by Epic Games.",
+        "developer": "Epic Games",
+        "publisher": "Epic Games",
+        "release": "21 July 2017"
+    },
+    {
+        "title": "Rocket League",
+        "tagline": "",
+        "rating": "4.5",
+        "tags": [
+            "racing",
+            "sports",
+            "multiplayer"
+        ],
+        "price": 0,
+        "image": "https://cdn1.epicgames.com/offer/9773aa1aaade4f0baa8641ad09559ef0/EGS_RocketLeague_Psyonix_S1_1200x1600-47863544d6c464352e1f2c55714701f7",
+        "banner": "https://cdn1.epicgames.com/offer/9773aa1aaade4f0baa8641ad09559ef0/EGST_RocketLeagueS12_Psyonix_S1_2560x1440-47863544d6c464352e1f2c55714701f7",
+        "description": "Rocket League is a high-powered hybrid of arcade-style soccer and vehicular mayhem.",
+        "developer": "Psyonix",
+        "publisher": "Epic Games",
+        "release": "7 July 2015"
+    },
+    {
+        "title": "Fall Guys",
+        "tagline": "",
+        "rating": "3.9",
+        "tags": [
+            "party",
+            "battle royale"
+        ],
+        "price": 0,
+        "image": "https://cdn1.epicgames.com/offer/50118b7f954e450f8823df1614b24e80/FGSS04_KeyArt_OfferImagePortrait_1200x1600_1200x1600-4bd46574e78464352e1f2c55714701f7",
+        "banner": "https://assets.nintendo.com/image/upload/q_auto/f_auto/store/software/switch/70010000042975/937afd0c84319831009b44c93369faf0a2c926a454809f73523df9bfb6cf6233",
+        "description": "Fall Guys is a free-to-play, cross-platform battle royale party game.",
+        "developer": "Mediatonic",
+        "publisher": "Epic Games",
+        "release": "4 August 2020"
+    },
+    {
+        "title": "Grand Theft Auto V",
+        "tagline": "",
+        "rating": "4.9",
+        "tags": [
+            "Open-world",
+            "Action"
+        ],
+        "price": 2499,
+        "image": "https://gamerspotstorage01.s3.ap-south-1.amazonaws.com/wp-content/uploads/2023/05/23134358/GTAV.jpg",
+        "banner": "https://cdn1.epicgames.com/offer/b0cd075465c44f87be3b505ac04a2e46/EGS_GrandTheftAutoVEnhanced_RockstarNorth_S1_2560x1440-906d8ae76a91aafc60b1a54c23fab496",
+        "description": "Grand Theft Auto V for PC offers players the option to explore the award-winning world of Los Santos and Blaine County.",
+        "developer": "Rockstar North",
+        "publisher": "Rockstar Games",
+        "release": "14 April 2015"
+    }
+]
