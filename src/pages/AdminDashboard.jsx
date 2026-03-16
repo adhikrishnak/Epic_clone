@@ -1,6 +1,5 @@
 import { useContext, useState } from "react";
 import { GameContext } from "../context/GameContext";
-import { v4 as uuidv4 } from "uuid";
 
 const AdminDashboard = () => {
   const { games, addGame, updateGame, deleteGame } = useContext(GameContext);
@@ -14,6 +13,8 @@ const AdminDashboard = () => {
     developer: "",
     publisher: "",
     release: "",
+    tags: "", // Added tags as string for input
+    rating: "", // Added rating
   });
   const [editingId, setEditingId] = useState(null);
 
@@ -25,27 +26,19 @@ const AdminDashboard = () => {
       return;
     }
 
+    const payload = {
+      ...form,
+      price: Number(form.price) || 0,
+      tags: typeof form.tags === "string" ? form.tags.split(",").map(t => t.trim()).filter(t => t) : form.tags,
+    };
+
     if (editingId) {
-      // ✅ Update existing game
-      updateGame(editingId, form);
+      // Update existing game
+      updateGame(editingId, payload);
       setEditingId(null);
     } else {
-      // ✅ Add new game with required fields
-      const newGame = {
-        id: uuidv4(), // unique ID
-        title: form.title,
-        price: Number(form.price) || 0,
-        image: form.image || "/images/placeholder.jpg",
-        banner: form.banner || "/images/placeholder-banner.jpg",
-        featured: form.featured,
-        description: form.description || "No description available",
-        developer: form.developer || "Unknown",
-        publisher: form.publisher || "Unknown",
-        release: form.release || "TBA",
-        refund: "Self-Refundable",
-        rewards: "Earn 5% Back",
-      };
-      addGame(newGame);
+      // Add new game — backend generates _id
+      addGame(payload);
     }
 
     // reset form
@@ -59,11 +52,16 @@ const AdminDashboard = () => {
       developer: "",
       publisher: "",
       release: "",
+      tags: "",
+      rating: "",
     });
   };
 
   const handleEdit = (game) => {
-    setForm(game);
+    setForm({
+      ...game,
+      tags: Array.isArray(game.tags) ? game.tags.join(", ") : "",
+    });
     setEditingId(game.id);
   };
 
@@ -118,6 +116,18 @@ const AdminDashboard = () => {
           placeholder="Release Date"
           value={form.release}
           onChange={(e) => setForm({ ...form, release: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Genre (comma separated)"
+          value={form.tags}
+          onChange={(e) => setForm({ ...form, tags: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Rating (e.g. 4.5)"
+          value={form.rating}
+          onChange={(e) => setForm({ ...form, rating: e.target.value })}
         />
 
         <label>

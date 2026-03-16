@@ -1,104 +1,89 @@
 import { createContext, useState, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid";
 
 export const GameContext = createContext();
 
-const initialGames = [
-  {
-    id: uuidv4(),
-    title: "Genshin Impact",
-    tagline: "A futuristic open-world RPG.",
-    rating: "4.6",
-    tags: ["Character Customization", "Great for Beginners"],
-    price: 1999,
-    image: "/images/genshin.jpg",
-    banner: "/images/genshin-banner.jpg",
-    description: "Explore Teyvat with Zibai and Columbina in this massive update.",
-    developer: "miHoYo",
-    publisher: "miHoYo",
-    release: "Jan 2026",
-    refund: "Self-Refundable",
-    rewards: "Earn 5% Back",
-    featured: true,
-  },
-  {
-    id: uuidv4(),
-    title: "Black Ops 6",
-    tagline: "Tactical shooter with stealth mechanics.",
-    rating: "4.3",
-    tags: ["Multiplayer", "Shooter"],
-    price: 1499,
-    image: "/images/shadow.jpg",
-    banner: "/images/blackops-banner.jpg",
-    description: "Engage in covert missions with advanced weaponry and tactical gameplay.",
-    developer: "Activision",
-    publisher: "Activision",
-    release: "Dec 2025",
-    refund: "Self-Refundable",
-    rewards: "Earn 5% Back",
-    featured: false,
-  },
-  {
-    id: uuidv4(),
-    title: "Forza 5",
-    tagline: "High-octane racing experience.",
-    rating: "4.8",
-    tags: ["Racing", "Open World"],
-    price: 999,
-    image: "/images/forza5.jpg",
-    banner: "/images/forza-banner.jpg",
-    description: "Race across stunning landscapes with realistic physics and dynamic weather.",
-    developer: "Playground Games",
-    publisher: "Xbox Game Studios",
-    release: "Nov 2025",
-    refund: "Self-Refundable",
-    rewards: "Earn 5% Back",
-    featured: false,
-  },
-];
+const API_URL = "/api/games";
 
 export const GameProvider = ({ children }) => {
-  const [games, setGames] = useState(() => {
-    const saved = localStorage.getItem("games");
-    return saved ? JSON.parse(saved) : initialGames;
-  });
+  const [games, setGames] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  // Fetch all games from backend on mount
   useEffect(() => {
-    localStorage.setItem("games", JSON.stringify(games));
-  }, [games]);
+    fetchGames();
+  }, []);
 
-  const addGame = (game) => {
-    const newGame = {
-      id: uuidv4(),
-      title: game.title || "Untitled Game",
-      price: Number(game.price) || 0,
-      image: game.image || "/images/placeholder.jpg",
-      banner: game.banner || "/images/placeholder-banner.jpg",
-      description: game.description || "No description available",
-      developer: game.developer || "Unknown",
-      publisher: game.publisher || "Unknown",
-      release: game.release || "TBA",
-      refund: "Self-Refundable",
-      rewards: "Earn 5% Back",
-      featured: game.featured || false,
-    };
-    setGames((prev) => [...prev, newGame]);
+  const fetchGames = async () => {
+    try {
+      const res = await fetch(API_URL);
+      const data = await res.json();
+      // Map MongoDB _id to id for consistency across the frontend
+      const mapped = data.map((g) => ({ ...g, id: g._id }));
+      setGames(mapped);
+    } catch (err) {
+      console.error("Failed to fetch games:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const updateGame = (id, updatedData) => {
-    setGames((prev) =>
-      prev.map((g) => (g.id === id ? { ...g, ...updatedData } : g))
-    );
+  const addGame = async (game) => {
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: game.title || "Untitled Game",
+          tagline: game.tagline || "",
+          rating: game.rating || "0",
+          tags: game.tags || [],
+          price: Number(game.price) || 0,
+          image: game.image || "/images/placeholder.jpg",
+          banner: game.banner || "/images/placeholder-banner.jpg",
+          description: game.description || "No description available",
+          developer: game.developer || "Unknown",
+          publisher: game.publisher || "Unknown",
+          release: game.release || "TBA",
+          refund: "Self-Refundable",
+          rewards: "Earn 5% Back",
+          featured: game.featured || false,
+        }),
+      });
+      const saved = await res.json();
+      const newGame = { ...saved, id: saved._id };
+      setGames((prev) => [newGame, ...prev]);
+    } catch (err) {
+      console.error("Failed to add game:", err);
+    }
   };
 
-  const [searchQuery, setSearchQuery] = useState(""); // ✅ new state
-
-
-  const deleteGame = (id) => {
-    setGames((prev) => prev.filter((g) => g.id !== id));
+  const updateGame = async (id, updatedData) => {
+    try {
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedData),
+      });
+      const updated = await res.json();
+      const mappedGame = { ...updated, id: updated._id };
+      setGames((prev) =>
+        prev.map((g) => (g.id === id ? mappedGame : g))
+      );
+    } catch (err) {
+      console.error("Failed to update game:", err);
+    }
   };
 
-  // ✅ Helper for Navbar search
+  const deleteGame = async (id) => {
+    try {
+      await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+      setGames((prev) => prev.filter((g) => g.id !== id));
+    } catch (err) {
+      console.error("Failed to delete game:", err);
+    }
+  };
+
+  // Search helper for Navbar
   const searchGames = (query) => {
     if (!query.trim()) return [];
     return games.filter((g) =>
@@ -107,7 +92,9 @@ export const GameProvider = ({ children }) => {
   };
 
   return (
-    <GameContext.Provider value={{ games, addGame, updateGame, deleteGame, searchGames }}>
+    <GameContext.Provider
+      value={{ games, loading, addGame, updateGame, deleteGame, searchGames }}
+    >
       {children}
     </GameContext.Provider>
   );
